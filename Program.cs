@@ -5,6 +5,8 @@ namespace Internship_2_C_Sharp
 {
     internal class Program
     {
+        static readonly string title = "APLIKACIJA ZA EVIDENCIJU GORIVA";
+
         static int userLatestId = 0;
         static int tripLatestId = 0;
         static List<int> userIds = [];
@@ -21,30 +23,68 @@ namespace Internship_2_C_Sharp
 
         static int ShowMenu(string[] options)
         {
-            for (int i = 0; i < options.Length; i++)
+            bool firstLoop = true;
+            while (true)
             {
-                Console.WriteLine(
-                    $"{(i != options.Length - 1 ? i + 1 : 0)} - {options[i]}"
-                );
-            }
+                Console.WriteLine("{0}\n", title);
+                for (int i = 0; i < options.Length; i++)
+                {
+                    Console.WriteLine(
+                        $"{(i != options.Length - 1 ? i + 1 : 0)} - {options[i]}"
+                    );
+                }
 
-            bool enteredCorrectly = false;
-            do
-            {
+                if (!firstLoop)
+                    Console.WriteLine("\nNije unesen pravilan odabir. Pokušajte ponovno.");
+                else
+                    firstLoop = false;
+
                 Console.Write("\nOdabir: ");
                 if (int.TryParse(Console.ReadLine(), out int choice))
                 {
                     if (!(choice > options.Length - 1 || choice < 0))
-                    {
-                        Console.WriteLine();
-                        enteredCorrectly = true;
                         return choice;
-                    }
                 }
-                Console.WriteLine("\nNije unesen pravilan odabir. Pokušajte ponovno.");
-            } while (!enteredCorrectly);
 
-            throw new Exception("ShowMenu je izašao iz petlje bez da je returnao value.");
+                Console.Clear();
+            }
+        }
+
+        static DateTime GetDate()
+        {
+            bool firstLoop = true;
+            while (true)
+            {
+                if (!firstLoop)
+                    Console.WriteLine("\nNije unesen pravilan datum. Pokušajte ponovno.");
+                else
+                    firstLoop = false;
+
+                Console.Write("\nUnesite datum (YYYY-MM-DD): ");
+
+                var inputted = Console.ReadLine();
+                if (inputted is null)
+                    continue;
+
+                var split = inputted.Split("-");
+                if (split.Length != 3)
+                    continue;
+
+                if (!(int.TryParse(split[0], out int year) && int.TryParse(split[1], out int month) && int.TryParse(split[2], out int day)))
+                    continue;
+
+                if (year > DateTime.Now.Year)
+                    continue;
+
+                try
+                {
+                    return new DateTime(year, month, day);
+                }
+                catch
+                {
+                    continue;
+                }
+            }
         }
 
         static void StoreNewUser(string newUserName, string newUserSurname, DateTime newUserDateOfBirth)
@@ -102,8 +142,6 @@ namespace Internship_2_C_Sharp
         {
             GenerateRandomData();
 
-            Console.WriteLine("APLIKACIJA ZA EVIDENCIJU GORIVA");
-
             var menuMain = new string[]
             {
                 "Korisnici",
@@ -130,7 +168,10 @@ namespace Internship_2_C_Sharp
                 "Povratak na glavni izbornik"
             };
 
-            switch (ShowMenu(menuMain))
+            var menu = ShowMenu(menuMain);
+            Console.Clear();
+
+            switch (menu)
             {
                 case 1:
                     ShowMenu(menuUser);

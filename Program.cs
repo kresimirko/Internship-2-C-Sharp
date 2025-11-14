@@ -21,8 +21,9 @@ namespace Internship_2_C_Sharp
         static Dictionary<int, decimal> tripOilPrices = [];
         static Dictionary<int, decimal> tripTotalSpendings = [];
 
-        static int ShowMenu(string[] options)
+        static int PromptMenu(string[] options)
         {
+            Console.Clear();
             bool firstLoop = true;
             while (true)
             {
@@ -115,14 +116,7 @@ namespace Internship_2_C_Sharp
                 if (inputted is null)
                     continue;
 
-                try
-                {
-                    return inputted;
-                }
-                catch
-                {
-                    continue;
-                }
+                return inputted;
             }
         }
 
@@ -143,17 +137,44 @@ namespace Internship_2_C_Sharp
                     continue;
                 lastEnteredLength = inputted.Length;
 
-                if (!(int.TryParse(inputted, out int parsed)))
+                if (!(decimal.TryParse(inputted, out decimal parsed)))
                     continue;
 
-                try
-                {
-                    return parsed;
-                }
-                catch
-                {
+                return parsed;
+            }
+        }
+
+        static int OneLinePromptUser()
+        {
+            var prompt = "Odaberite korisnika (ime i prezime ili ID): ";
+            Console.Write(prompt);
+            bool firstLoop = true;
+            int lastEnteredLength = 0;
+            while (true)
+            {
+                if (!firstLoop)
+                    BringCursorBackToPrompt(prompt.Length, lastEnteredLength);
+                else
+                    firstLoop = false;
+
+                var inputted = Console.ReadLine();
+                if (inputted is null)
                     continue;
+                lastEnteredLength = inputted.Length;
+
+                if (!(int.TryParse(inputted, out int userId)))
+                {
+                    var inputtedUserNameAndSurname = inputted.Split(' ');
+                    if (inputtedUserNameAndSurname.Length != 2)
+                        continue;
+                    foreach (var surname in userSurnames)
+                    {
+                        if (surname.Value + userNames[surname.Key] == inputted)
+                            return surname.Key;
+                    }
                 }
+                else
+                    return userId;
             }
         }
 
@@ -180,7 +201,7 @@ namespace Internship_2_C_Sharp
             tripTotalSpendings.Add(tripLatestId, newTripOilUsedUp * newTripOilPrice);
         }
 
-        static void GenerateRandomData()
+        static void GenerateInitialRandomData()
         {
             var stockNames = new string[] { "Ivan", "Stipe", "Mate", "Jozo", "Šimun", "Luka", "Kate", "Andrijana", "Lucija", "Antonia", "Lukrecija", "Jelena" };
             var stockSurnames = new string[] { "Ivić", "Babić", "Šimić", "Žarković", "Slapničar", "Geić" };
@@ -208,61 +229,96 @@ namespace Internship_2_C_Sharp
             }
         }
 
-        static void Main()
+        static void PromptTrip()
         {
-            GenerateRandomData();
+            Console.Clear();
+            Console.WriteLine(title);
+            Console.Write("\n>>> Unos novog putovanja\n\nUnesite informacije.\nAko ikoja bude nevažeća, pokazivač će se vratiti na početak upita i konzola će zazvoniti.\n\n");
+            StoreNewTrip(
+                OneLinePromptUser(),
+                OneLinePromptDate(),
+                OneLinePromptDecimal("Unesite kilometražu: "),
+                OneLinePromptDecimal("Unesite potrošeno gorivo (L): "),
+                OneLinePromptDecimal("Unesite cijenu po litri: ")
+            );
+            Console.WriteLine("\nPutovanje uspješno dodano!");
+            Thread.Sleep(2000);
+            Console.Clear();
+        }
 
-            var menuMain = new string[]
-            {
-                "Korisnici",
-                "Putovanja",
-                "Izlaz iz aplikacije"
-            };
-
-            var menuUser = new string[]
-            {
-                "Unos novog korisnika",
-                "Brisanje korisnika",
-                "Uređivanje korisnika",
-                "Pregled svih korisnika",
-                "Povratak na glavni izbornik"
-            };
-
-            var menuTrip = new string[]
-            {
+        static void ShowMenuTrip()
+        {
+            var choice = PromptMenu([
                 "Unos novog putovanja",
                 "Brisanje putovanja",
                 "Uređivanje postojećeg putovanja",
                 "Pregled svih putovanja",
                 "Izvještaji i analize",
                 "Povratak na glavni izbornik"
-            };
+            ]);
 
-            var menu = ShowMenu(menuMain);
-            Console.Clear();
-
-            /* Console.Write("Unesite informacije.\n\nAko ikoja bude nevažeća, pokazivač će se vratiti na početak upita i konzola će zazvoniti.\n\n");
-            OneLinePromptDate();
-            OneLinePromptDecimal("Unesite kilometražu: ");
-            OneLinePromptDecimal("Unesite potrošeno gorivo (L): ");
-            OneLinePromptDecimal("Unesite cijenu po litri: ");
-            Console.WriteLine("\nPutovanje uspješno dodano!");
-            Thread.Sleep(2000);
-            Console.Clear(); */
-
-            switch (menu)
+            switch (choice)
             {
                 case 1:
-                    ShowMenu(menuUser);
+                    PromptTrip();
                     break;
                 case 2:
-                    ShowMenu(menuTrip);
                     break;
-                case 0:
-                    return;
-                default:
-                    return;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
             }
+        }
+        static void ShowMenuUser()
+        {
+            var choice = PromptMenu([
+                "Unos novog korisnika",
+                "Brisanje korisnika",
+                "Uređivanje korisnika",
+                "Pregled svih korisnika",
+                "Povratak na glavni izbornik"
+            ]);
+
+            switch (choice)
+            {
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+            }
+        }
+        static void ShowMenuMain()
+        {
+            var choice = PromptMenu([
+                "Korisnici",
+                "Putovanja",
+                "Izlaz iz aplikacije"
+            ]);
+
+            switch (choice)
+            {
+                case 1:
+                    ShowMenuUser();
+                    break;
+                case 2:
+                    ShowMenuTrip();
+                    break;
+            }
+        }
+
+        static void Main()
+        {
+            GenerateInitialRandomData();
+
+            while (true)
+                ShowMenuMain();
         }
     }
 }

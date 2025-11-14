@@ -76,7 +76,7 @@ namespace Internship_2_C_Sharp
             var stockSurnames = new string[] { "Ivić", "Babić", "Šimić", "Žarković", "Slapničar", "Geić" };
 
             var rand = new Random();
-            for (; userLatestId <= 3; userLatestId++)
+            while(userLatestId < 3)
             {
                 StoreNewUser(
                     stockNames[rand.Next(0, stockNames.Length)],
@@ -86,11 +86,12 @@ namespace Internship_2_C_Sharp
 
                 for (int x = 0; x < 5; x++)
                 {
+                    var randomTravelDistance = (decimal)rand.NextDouble() * 900;
                     StoreNewTravel(
                         userLatestId,
-                        new DateTime(rand.Next(userDatesOfBirth[userLatestId].Year + 19, 2007 + 19), rand.Next(1, 13), rand.Next(1, 29), rand.Next(0, 24), rand.Next(0, 60), rand.Next(0, 60)),,
-                        (decimal)rand.NextDouble() * 900,
-                        travelDistances[travelLatestId] * rand.Next(7, 15) / 100,
+                        new DateTime(rand.Next(userDatesOfBirth[userLatestId].Year + 19, 2007 + 19), rand.Next(1, 13), rand.Next(1, 29), rand.Next(0, 24), rand.Next(0, 60), rand.Next(0, 60)),
+                        randomTravelDistance,
+                        randomTravelDistance * rand.Next(7, 15) / 100,
                         (decimal)rand.NextDouble() + 1
                     );
                 }

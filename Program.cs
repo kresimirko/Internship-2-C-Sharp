@@ -1,6 +1,8 @@
 ﻿#pragma warning disable IDE0044
 #pragma warning disable IDE0059
 
+using System.Runtime.InteropServices;
+
 namespace Internship_2_C_Sharp
 {
     internal class Program
@@ -21,13 +23,15 @@ namespace Internship_2_C_Sharp
         static Dictionary<int, decimal> tripOilPrices = [];
         static Dictionary<int, decimal> tripTotalSpendings = [];
 
-        static int PromptMenu(string[] options)
+        static int PromptMenu(string[] options, [Optional] string subtitle)
         {
             Console.Clear();
             bool firstLoop = true;
             while (true)
             {
                 Console.WriteLine("{0}\n", title);
+                if (subtitle is not null)
+                    Console.WriteLine("{0}\n", subtitle);
                 for (int i = 0; i < options.Length; i++)
                 {
                     Console.WriteLine(
@@ -270,6 +274,39 @@ namespace Internship_2_C_Sharp
             Console.ReadKey();
         }
 
+        static void ShowMenuShowTrips()
+        {
+            var choice = PromptMenu([
+                "...redom kako su spremljena",
+                "...sortirana po trošku uzlazno",
+                "...sortirana po trošku silazno",
+                "...sortirana po kilometraži uzlazno",
+                "...sortirana po kilometraži silazno",
+                "...sortirana po datumu uzlazno",
+                "...sortirana po datumu silazno",
+                "Povratak na glavni izbornik"
+            ], ">>> Pregled svih putovanja");
+
+            switch (choice)
+            {
+                case 1:
+                    ShowAllTrips();
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    break;
+            }
+        }
+
         static void ShowMenuTrip()
         {
             var choice = PromptMenu([
@@ -291,7 +328,7 @@ namespace Internship_2_C_Sharp
                 case 3:
                     break;
                 case 4:
-                    ShowAllTrips();
+                    ShowMenuShowTrips();
                     break;
                 case 5:
                     break;

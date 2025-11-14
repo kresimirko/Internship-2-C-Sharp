@@ -6,18 +6,18 @@ namespace Internship_2_C_Sharp
     internal class Program
     {
         static int userLatestId = 0;
-        static int travelLatestId = 0;
+        static int tripLatestId = 0;
         static List<int> userIds = [];
         static Dictionary<int, string> userNames = [];
         static Dictionary<int, string> userSurnames = [];
         static Dictionary<int, DateTime> userDatesOfBirth = [];
-        static Dictionary<int, List<int>> userTravelIds = [];
-        static List<int> travelIds = [];
-        static Dictionary<int, DateTime> travelDates = [];
-        static Dictionary<int, decimal> travelDistances = [];
-        static Dictionary<int, decimal> travelOilUsedUp = [];
-        static Dictionary<int, decimal> travelOilPrices = [];
-        static Dictionary<int, decimal> travelTotalSpendings = [];
+        static Dictionary<int, List<int>> userTripIds = [];
+        static List<int> tripIds = [];
+        static Dictionary<int, DateTime> tripDates = [];
+        static Dictionary<int, decimal> tripDistances = [];
+        static Dictionary<int, decimal> tripOilUsedUp = [];
+        static Dictionary<int, decimal> tripOilPrices = [];
+        static Dictionary<int, decimal> tripTotalSpendings = [];
 
         static int ShowMenu(string[] options)
         {
@@ -54,20 +54,20 @@ namespace Internship_2_C_Sharp
             userNames.Add(userLatestId, newUserName);
             userSurnames.Add(userLatestId, newUserSurname);
             userDatesOfBirth.Add(userLatestId, newUserDateOfBirth);
-            userTravelIds.Add(userLatestId, []);
+            userTripIds.Add(userLatestId, []);
         }
 
-        static void StoreNewTravel(int userId, DateTime newTravelDate, decimal newTravelDistance, decimal newTravelOilUsedUp, decimal newTravelOilPrice)
+        static void StoreNewTrip(int userId, DateTime newTripDate, decimal newTripDistance, decimal newTripOilUsedUp, decimal newTripOilPrice)
         {
-            travelLatestId++;
-            travelIds.Add(travelLatestId);
-            userTravelIds[userId].Add(travelLatestId);
+            tripLatestId++;
+            tripIds.Add(tripLatestId);
+            userTripIds[userId].Add(tripLatestId);
 
-            travelDates.Add(travelLatestId, newTravelDate);
-            travelDistances.Add(travelLatestId, newTravelDistance);
-            travelOilUsedUp.Add(travelLatestId, newTravelOilUsedUp);
-            travelOilPrices.Add(travelLatestId, newTravelOilPrice);
-            travelTotalSpendings.Add(travelLatestId, newTravelOilUsedUp * newTravelOilPrice);
+            tripDates.Add(tripLatestId, newTripDate);
+            tripDistances.Add(tripLatestId, newTripDistance);
+            tripOilUsedUp.Add(tripLatestId, newTripOilUsedUp);
+            tripOilPrices.Add(tripLatestId, newTripOilPrice);
+            tripTotalSpendings.Add(tripLatestId, newTripOilUsedUp * newTripOilPrice);
         }
 
         static void GenerateRandomData()
@@ -86,12 +86,12 @@ namespace Internship_2_C_Sharp
 
                 for (int x = 0; x < 5; x++)
                 {
-                    var randomTravelDistance = (decimal)rand.NextDouble() * 900;
-                    StoreNewTravel(
+                    var randomTripDistance = (decimal)rand.NextDouble() * 900;
+                    StoreNewTrip(
                         userLatestId,
                         new DateTime(rand.Next(userDatesOfBirth[userLatestId].Year + 19, 2007 + 19), rand.Next(1, 13), rand.Next(1, 29), rand.Next(0, 24), rand.Next(0, 60), rand.Next(0, 60)),
-                        randomTravelDistance,
-                        randomTravelDistance * rand.Next(7, 15) / 100,
+                        randomTripDistance,
+                        randomTripDistance * rand.Next(7, 15) / 100,
                         (decimal)rand.NextDouble() + 1
                     );
                 }
@@ -120,7 +120,7 @@ namespace Internship_2_C_Sharp
                 "Povratak na glavni izbornik"
             };
 
-            var menuTravel = new string[]
+            var menuTrip = new string[]
             {
                 "Unos novog putovanja",
                 "Brisanje putovanja",
@@ -136,7 +136,7 @@ namespace Internship_2_C_Sharp
                     ShowMenu(menuUser);
                     break;
                 case 2:
-                    ShowMenu(menuTravel);
+                    ShowMenu(menuTrip);
                     break;
                 case 0:
                     return;

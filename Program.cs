@@ -246,6 +246,30 @@ namespace Internship_2_C_Sharp
             Console.Clear();
         }
 
+        static void ShowAllTrips()
+        {
+            Console.Clear();
+            Console.Write("{0}\n\n>>> Pregled svih putovanja\n\n", title);
+
+            foreach (var userId in userIds)
+            {
+                Console.WriteLine("-- Korisnik: {0} {1} --\n", userNames[userId], userSurnames[userId]);
+                foreach (var tripId in userTripIds[userId])
+                {
+                    Console.WriteLine("Putovanje #{0}", tripId);
+                    Console.WriteLine("Datum: {0}", tripDates[tripId]);
+                    Console.WriteLine("Kilometri: {0}", tripDistances[tripId]);
+                    Console.WriteLine("Gorivo: {0} L", tripOilUsedUp[tripId]);
+                    Console.WriteLine("Cijena po litri: {0} EUR", tripOilPrices[tripId]);
+                    Console.WriteLine("Ukupno: {0} EUR", tripTotalSpendings[tripId]);
+                    Console.WriteLine();
+                }
+            }
+
+            Console.Write("Pritisnite bilo koju tipku za povratak...");
+            Console.ReadKey();
+        }
+
         static void ShowMenuTrip()
         {
             var choice = PromptMenu([
@@ -267,6 +291,7 @@ namespace Internship_2_C_Sharp
                 case 3:
                     break;
                 case 4:
+                    ShowAllTrips();
                     break;
                 case 5:
                     break;

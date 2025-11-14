@@ -35,7 +35,7 @@ namespace Internship_2_C_Sharp
                 }
 
                 if (!firstLoop)
-                    Console.WriteLine("\nNije unesen pravilan odabir. Pokušajte ponovno.");
+                    Console.WriteLine("\nNije unesen pravilan odabir. Pokušajte ponovno.\a");
                 else
                     firstLoop = false;
 
@@ -50,21 +50,34 @@ namespace Internship_2_C_Sharp
             }
         }
 
-        static DateTime GetDate()
+        static void BringCursorBackToPrompt(int promptLength, int userInputLength)
         {
+            for (int i = 0; i < (promptLength + userInputLength) / Console.BufferWidth + 1; i++)
+                Console.CursorTop--;
+            Console.CursorLeft = promptLength;
+            var savedPos = Console.GetCursorPosition();
+            Console.Write(new string(' ', userInputLength));
+            Console.SetCursorPosition(savedPos.Left, savedPos.Top);
+            Console.Write('\a');
+        }
+
+        static DateTime OneLinePromptDate()
+        {
+            var prompt = "Unesite datum (YYYY-MM-DD): ";
+            Console.Write(prompt);
             bool firstLoop = true;
+            int lastEnteredLength = 0;
             while (true)
             {
                 if (!firstLoop)
-                    Console.WriteLine("\nNije unesen pravilan datum. Pokušajte ponovno.");
+                    BringCursorBackToPrompt(prompt.Length, lastEnteredLength);
                 else
                     firstLoop = false;
-
-                Console.Write("\nUnesite datum (YYYY-MM-DD): ");
 
                 var inputted = Console.ReadLine();
                 if (inputted is null)
                     continue;
+                lastEnteredLength = inputted.Length;
 
                 var split = inputted.Split("-");
                 if (split.Length != 3)
@@ -79,6 +92,63 @@ namespace Internship_2_C_Sharp
                 try
                 {
                     return new DateTime(year, month, day);
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+        }
+
+        static string OneLinePromptString(string prompt)
+        {
+            Console.Write(prompt);
+            bool firstLoop = true;
+            while (true)
+            {
+                if (!firstLoop)
+                    BringCursorBackToPrompt(prompt.Length, 0);
+                else
+                    firstLoop = false;
+
+                var inputted = Console.ReadLine();
+                if (inputted is null)
+                    continue;
+
+                try
+                {
+                    return inputted;
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+        }
+
+        static decimal OneLinePromptDecimal(string prompt)
+        {
+            Console.Write(prompt);
+            bool firstLoop = true;
+            int lastEnteredLength = 0;
+            while (true)
+            {
+                if (!firstLoop)
+                    BringCursorBackToPrompt(prompt.Length, lastEnteredLength);
+                else
+                    firstLoop = false;
+
+                var inputted = Console.ReadLine();
+                if (inputted is null)
+                    continue;
+                lastEnteredLength = inputted.Length;
+
+                if (!(int.TryParse(inputted, out int parsed)))
+                    continue;
+
+                try
+                {
+                    return parsed;
                 }
                 catch
                 {
@@ -170,6 +240,15 @@ namespace Internship_2_C_Sharp
 
             var menu = ShowMenu(menuMain);
             Console.Clear();
+
+            /* Console.Write("Unesite informacije.\n\nAko ikoja bude nevažeća, pokazivač će se vratiti na početak upita i konzola će zazvoniti.\n\n");
+            OneLinePromptDate();
+            OneLinePromptDecimal("Unesite kilometražu: ");
+            OneLinePromptDecimal("Unesite potrošeno gorivo (L): ");
+            OneLinePromptDecimal("Unesite cijenu po litri: ");
+            Console.WriteLine("\nPutovanje uspješno dodano!");
+            Thread.Sleep(2000);
+            Console.Clear(); */
 
             switch (menu)
             {

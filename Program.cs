@@ -252,6 +252,32 @@ namespace Internship_2_C_Sharp
             tripTotalSpendings.Add(tripLatestId, newTripFuelUsedUp * newTripFuelPrice);
         }
 
+        static void DeleteTripData(int tripId)
+        {
+            foreach (var pair in userTripIds)
+                pair.Value.Remove(tripId);
+
+            tripIds.Remove(tripId);
+            tripDates.Remove(tripId);
+            tripDistances.Remove(tripId);
+            tripFuelUsedUp.Remove(tripId);
+            tripFuelPrices.Remove(tripId);
+            tripTotalSpendings.Remove(tripId);
+        }
+
+        static void DeleteUserData(int userId)
+        {
+            userIds.Remove(userId);
+            userNames.Remove(userId);
+            userSurnames.Remove(userId);
+            userDatesOfBirth.Remove(userId);
+            userTripIds.Remove(userId);
+
+            foreach (var tripId in userTripIds[userId])
+                DeleteTripData(tripId);
+            userTripIds.Remove(userId);
+        }
+
         static void GenerateInitialRandomData()
         {
             var stockNames = new string[] { "Ivan", "Stipe", "Mate", "Jozo", "Šimun", "Luka", "Kate", "Andrijana", "Lucija", "Antonia", "Lukrecija", "Jelena" };
@@ -341,15 +367,7 @@ namespace Internship_2_C_Sharp
 
             if (choice == 1)
             {
-                foreach (var pair in userTripIds)
-                    pair.Value.Remove(tripId);
-
-                tripIds.Remove(tripId);
-                tripDates.Remove(tripId);
-                tripDistances.Remove(tripId);
-                tripFuelUsedUp.Remove(tripId);
-                tripFuelPrices.Remove(tripId);
-                tripTotalSpendings.Remove(tripId);
+                DeleteTripData(tripId);
 
                 Console.Write("\nUspješno izbrisano putovanje {0}!\n", tripId);
                 Halt();
@@ -475,7 +493,7 @@ namespace Internship_2_C_Sharp
             }
         }
 
-        static void PromptNewUser()
+        static void PromptUserNew()
         {
             Console.Clear();
             Console.WriteLine(title);
@@ -488,6 +506,41 @@ namespace Internship_2_C_Sharp
             Console.Write("\nKorisnik uspješno dodan!\n\n");
             Halt();
             Console.Clear();
+        }
+
+        static void PromptUserDelete(int userId)
+        {
+            var choice = PromptMenu([
+                "Da (TRAJNO!)",
+                "Ne (nazad na glavni izbornik)"
+            ], $">>> Brisanje korisnika\n\nJeste li sigurni da želite izbrisati korisnika {userId}?");
+
+            if (choice == 1)
+            {
+                DeleteUserData(userId);
+
+                Console.Write("\nUspješno izbrisan korisnik {0}!\n", userId);
+                Halt();
+            }
+        }
+
+        static void ShowAllUsers()
+        {
+            Console.Clear();
+            Console.Write("{0}\n\n>>> Pregled svih korisnika\n\n", title);
+            Console.WriteLine("ID - Ime - Prezime - Datum rođenja");
+            Console.WriteLine(new string('-', 50));
+
+            foreach (var userId in userIds)
+            {
+                Console.Write(userId + " - ");
+                Console.Write(userNames[userId] + " - ");
+                Console.Write(userSurnames[userId] + " - ");
+                Console.Write(userDatesOfBirth[userId] + "\n");
+            }
+
+            Console.WriteLine();
+            Halt();
         }
 
         static void ShowMenuTrip()
@@ -542,13 +595,15 @@ namespace Internship_2_C_Sharp
             switch (choice)
             {
                 case 1:
-                    PromptNewUser();
+                    PromptUserNew();
                     break;
                 case 2:
+                    PromptUserDelete(OneLinePromptUser());
                     break;
                 case 3:
                     break;
                 case 4:
+                    ShowAllUsers();
                     break;
             }
         }

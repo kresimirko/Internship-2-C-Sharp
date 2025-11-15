@@ -154,6 +154,30 @@ namespace Internship_2_C_Sharp
             }
         }
 
+        static int OneLinePromptTrip(string prompt)
+        {
+            Console.Write(prompt);
+            bool firstLoop = true;
+            int lastEnteredLength = 0;
+            while (true)
+            {
+                if (!firstLoop)
+                    BringCursorBackToPrompt(prompt.Length, lastEnteredLength);
+                else
+                    firstLoop = false;
+
+                var inputted = Console.ReadLine();
+                if (inputted is null)
+                    continue;
+                lastEnteredLength = inputted.Length;
+
+                if (!(int.TryParse(inputted, out int parsed)))
+                    continue;
+                else if (tripIds.Contains(parsed))
+                    return parsed;
+            }
+        }
+
         static int OneLinePromptUser()
         {
             var prompt = "Odaberite korisnika (ime i prezime ili ID): ";
@@ -252,6 +276,41 @@ namespace Internship_2_C_Sharp
                 OneLinePromptDecimal("Unesite cijenu po litri: ")
             );
             Console.Write("\nPutovanje uspješno dodano!\n\n");
+            Halt();
+            Console.Clear();
+        }
+
+        static void PromptTripEdit(int tripId)
+        {
+            var choice = PromptMenu([
+                "Datum",
+                "Kilometražu",
+                "Potrošeno gorivo",
+                "Cijenu goriva",
+                "Odustani"
+            ], $">>> Uređivanje postojećeg putovanja\n\nOdaberite podatak koju želite izmjeniti za putovanje {tripId}.\nAko bude nevažeći, pokazivač će se vratiti na početak upita i konzola će zazvoniti.");
+
+            Console.WriteLine();
+
+            switch (choice)
+            {
+                case 1:
+                    tripDates[tripId] = OneLinePromptDate();
+                    break;
+                case 2:
+                    tripDistances[tripId] = OneLinePromptDecimal("Unesite kilometražu: ");
+                    break;
+                case 3:
+                    tripFuelUsedUp[tripId] = OneLinePromptDecimal("Unesite potrošeno gorivo (L): ");
+                    break;
+                case 4:
+                    tripFuelPrices[tripId] = OneLinePromptDecimal("Unesite cijenu po litri: ");
+                    break;
+                case 0:
+                    return;
+            }
+
+            Console.Write("\nPutovanje uspješno uređeno!\n\n");
             Halt();
             Console.Clear();
         }
@@ -394,6 +453,8 @@ namespace Internship_2_C_Sharp
                 case 2:
                     break;
                 case 3:
+                    Console.WriteLine();
+                    PromptTripEdit(OneLinePromptTrip("Upišite ID putovanja: "));
                     break;
                 case 4:
                     ShowMenuShowTrips();

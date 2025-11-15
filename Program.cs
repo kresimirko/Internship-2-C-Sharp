@@ -19,8 +19,8 @@ namespace Internship_2_C_Sharp
         static List<int> tripIds = [];
         static Dictionary<int, DateTime> tripDates = [];
         static Dictionary<int, decimal> tripDistances = [];
-        static Dictionary<int, decimal> tripOilUsedUp = [];
-        static Dictionary<int, decimal> tripOilPrices = [];
+        static Dictionary<int, decimal> tripFuelUsedUp = [];
+        static Dictionary<int, decimal> tripFuelPrices = [];
         static Dictionary<int, decimal> tripTotalSpendings = [];
 
         static int PromptMenu(string[] options, [Optional] string subtitle)
@@ -192,7 +192,7 @@ namespace Internship_2_C_Sharp
             userTripIds.Add(userLatestId, []);
         }
 
-        static void StoreNewTrip(int userId, DateTime newTripDate, decimal newTripDistance, decimal newTripOilUsedUp, decimal newTripOilPrice)
+        static void StoreNewTrip(int userId, DateTime newTripDate, decimal newTripDistance, decimal newTripFuelUsedUp, decimal newTripFuelPrice)
         {
             tripLatestId++;
             tripIds.Add(tripLatestId);
@@ -200,9 +200,9 @@ namespace Internship_2_C_Sharp
 
             tripDates.Add(tripLatestId, newTripDate);
             tripDistances.Add(tripLatestId, newTripDistance);
-            tripOilUsedUp.Add(tripLatestId, newTripOilUsedUp);
-            tripOilPrices.Add(tripLatestId, newTripOilPrice);
-            tripTotalSpendings.Add(tripLatestId, newTripOilUsedUp * newTripOilPrice);
+            tripFuelUsedUp.Add(tripLatestId, newTripFuelUsedUp);
+            tripFuelPrices.Add(tripLatestId, newTripFuelPrice);
+            tripTotalSpendings.Add(tripLatestId, newTripFuelUsedUp * newTripFuelPrice);
         }
 
         static void GenerateInitialRandomData()
@@ -211,7 +211,7 @@ namespace Internship_2_C_Sharp
             var stockSurnames = new string[] { "Ivić", "Babić", "Šimić", "Žarković", "Slapničar", "Geić" };
 
             var rand = new Random();
-            while(userLatestId < 3)
+            while (userLatestId < 3)
             {
                 StoreNewUser(
                     stockNames[rand.Next(0, stockNames.Length)],
@@ -221,13 +221,13 @@ namespace Internship_2_C_Sharp
 
                 for (int x = 0; x < 5; x++)
                 {
-                    var randomTripDistance = (decimal)rand.NextDouble() * 900;
+                    var randomTripDistance = Math.Round((decimal)rand.NextDouble() * 900, 2);
                     StoreNewTrip(
                         userLatestId,
                         new DateTime(rand.Next(userDatesOfBirth[userLatestId].Year + 19, 2007 + 19), rand.Next(1, 13), rand.Next(1, 29), rand.Next(0, 24), rand.Next(0, 60), rand.Next(0, 60)),
                         randomTripDistance,
-                        randomTripDistance * rand.Next(7, 15) / 100,
-                        (decimal)rand.NextDouble() + 1
+                        Math.Round(randomTripDistance * rand.Next(7, 15) / 100, 2),
+                        Math.Round((decimal)rand.NextDouble() + 1, 2)
                     );
                 }
             }
@@ -263,8 +263,8 @@ namespace Internship_2_C_Sharp
                     Console.WriteLine("Putovanje #{0}", tripId);
                     Console.WriteLine("Datum: {0}", tripDates[tripId]);
                     Console.WriteLine("Kilometri: {0}", tripDistances[tripId]);
-                    Console.WriteLine("Gorivo: {0} L", tripOilUsedUp[tripId]);
-                    Console.WriteLine("Cijena po litri: {0} EUR", tripOilPrices[tripId]);
+                    Console.WriteLine("Gorivo: {0} L", tripFuelUsedUp[tripId]);
+                    Console.WriteLine("Cijena po litri: {0} EUR", tripFuelPrices[tripId]);
                     Console.WriteLine("Ukupno: {0} EUR", tripTotalSpendings[tripId]);
                     Console.WriteLine();
                 }
@@ -377,6 +377,9 @@ namespace Internship_2_C_Sharp
 
         static void Main()
         {
+            Console.OutputEncoding = System.Text.Encoding.GetEncoding(1200);
+            Console.InputEncoding = System.Text.Encoding.GetEncoding(1200);
+
             GenerateInitialRandomData();
 
             while (true)

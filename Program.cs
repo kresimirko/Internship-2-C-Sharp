@@ -32,33 +32,20 @@ namespace Internship_2_C_Sharp
         static int PromptMenu(string[] options, [Optional] string subtitle)
         {
             Console.Clear();
-            bool firstLoop = true;
-            while (true)
+
+            Console.WriteLine("{0}\n", title);
+            if (subtitle is not null)
+                Console.WriteLine("{0}\n", subtitle);
+
+            for (int i = 0; i < options.Length; i++)
             {
-                Console.WriteLine("{0}\n", title);
-                if (subtitle is not null)
-                    Console.WriteLine("{0}\n", subtitle);
-                for (int i = 0; i < options.Length; i++)
-                {
-                    Console.WriteLine(
-                        $"{(i != options.Length - 1 ? i + 1 : 0)} - {options[i]}"
-                    );
-                }
-
-                if (!firstLoop)
-                    Console.WriteLine("\nNije unesen pravilan odabir. Pokušajte ponovno.\a");
-                else
-                    firstLoop = false;
-
-                Console.Write("\nOdabir: ");
-                if (int.TryParse(Console.ReadLine(), out int choice))
-                {
-                    if (!(choice > options.Length - 1 || choice < 0))
-                        return choice;
-                }
-
-                Console.Clear();
+                Console.WriteLine(
+                    $"{(i != options.Length - 1 ? i + 1 : 0)} - {options[i]}"
+                );
             }
+
+            Console.WriteLine();
+            return OneLinePromptIntInRange("Odabir: ", -1, options.Length);
         }
 
         static void BringCursorBackToPrompt(int promptLength, int userInputLength)
@@ -69,7 +56,13 @@ namespace Internship_2_C_Sharp
             var savedPos = Console.GetCursorPosition();
             Console.Write(new string(' ', userInputLength));
             Console.SetCursorPosition(savedPos.Left, savedPos.Top);
-            Console.Write('\a');
+
+            var invalidInputWarning = "Nevažeći unos!";
+            Console.Write("\a\x1b[31mNevažeći unos!\x1b[0m");
+            Thread.Sleep(1500);
+            Console.Write(new string('\b', invalidInputWarning.Length));
+            Console.Write(new string(' ', invalidInputWarning.Length));
+            Console.Write(new string('\b', invalidInputWarning.Length));
         }
 
         static DateTime OneLinePromptDate()
@@ -127,6 +120,30 @@ namespace Internship_2_C_Sharp
                     continue;
 
                 return inputted;
+            }
+        }
+
+        static int OneLinePromptIntInRange(string prompt, int lower, int higher)
+        {
+            Console.Write(prompt);
+            bool firstLoop = true;
+            int lastEnteredLength = 0;
+            while (true)
+            {
+                if (!firstLoop)
+                    BringCursorBackToPrompt(prompt.Length, lastEnteredLength);
+                else
+                    firstLoop = false;
+
+                var inputted = Console.ReadLine();
+                if (inputted is null)
+                    continue;
+                lastEnteredLength = inputted.Length;
+
+                if (!(int.TryParse(inputted, out int parsed)))
+                    continue;
+                else if (parsed > lower && parsed < higher)
+                    return parsed;
             }
         }
 
@@ -267,7 +284,7 @@ namespace Internship_2_C_Sharp
         {
             Console.Clear();
             Console.WriteLine(title);
-            Console.Write("\n>>> Unos novog putovanja\n\nUnesite informacije.\nAko ikoja bude nevažeća, pokazivač će se vratiti na početak upita i konzola će zazvoniti.\n\n");
+            Console.Write("\n>>> Unos novog putovanja\n\nUnesite informacije.\n\n");
             StoreNewTrip(
                 OneLinePromptUser(),
                 OneLinePromptDate(),
@@ -288,7 +305,7 @@ namespace Internship_2_C_Sharp
                 "Potrošeno gorivo",
                 "Cijenu goriva",
                 "Odustani"
-            ], $">>> Uređivanje postojećeg putovanja\n\nOdaberite podatak koju želite izmjeniti za putovanje {tripId}.\nAko bude nevažeći, pokazivač će se vratiti na početak upita i konzola će zazvoniti.");
+            ], $">>> Uređivanje postojećeg putovanja\n\nOdaberite podatak koju želite izmjeniti za putovanje {tripId}.");
 
             Console.WriteLine();
 
@@ -476,19 +493,22 @@ namespace Internship_2_C_Sharp
                     PromptTrip();
                     break;
                 case 2:
-                    Console.Write("\nUpišite ID putovanja. Ako je odabir nevažeći, pokazivač će se vratiti na početak upita i konzola će zazvoniti.\n\n");
-                    PromptTripDelete(OneLinePromptTrip("Odabir: "));
+                    Console.WriteLine();
+                    PromptTripDelete(OneLinePromptTrip("Upišite ID putovanja: "));
                     break;
                 case 3:
-                    Console.Write("\nUpišite ID putovanja. Ako je odabir nevažeći, pokazivač će se vratiti na početak upita i konzola će zazvoniti.\n\n");
-                    PromptTripEdit(OneLinePromptTrip("Odabir: "));
+                    Console.WriteLine();
+                    PromptTripEdit(OneLinePromptTrip("Upišite ID putovanja: "));
                     break;
                 case 4:
                     ShowMenuShowTrips();
                     break;
                 case 5:
-                    Console.Write("\nUpišite ID putovanja. Ako je odabir nevažeći, pokazivač će se vratiti na početak upita i konzola će zazvoniti.\n\n");
-                    ShowSpecificTripData(OneLinePromptTrip("Odabir: "));
+                    Console.WriteLine();
+                    var id = OneLinePromptTrip("Upišite ID putovanja: ");
+                    Console.WriteLine();
+                    ShowSpecificTripData(id, true);
+                    Halt();
                     break;
                 case 6:
                     break;

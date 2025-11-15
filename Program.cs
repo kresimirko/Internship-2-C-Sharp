@@ -353,7 +353,7 @@ namespace Internship_2_C_Sharp
                 "Potrošeno gorivo",
                 "Cijenu goriva",
                 "Nazad na glavni izbornik"
-            ], $">>> Uređivanje putovanja\n\nOdaberite podatak koji želite izmjeniti za putovanje {tripId}.");
+            ], $">>> Uređivanje postojećeg putovanja\n\nOdaberite podatak koji želite izmjeniti za putovanje {tripId}.");
 
             Console.WriteLine();
 
@@ -362,7 +362,7 @@ namespace Internship_2_C_Sharp
                 "Da",
                 "Ne (nazad na glavni izbornik)"
             };
-            var promptSubtitle = $">>> Uređivanje putovanja\n\nJeste li sigurni da želite urediti putovanje {tripId}?";
+            var promptSubtitle = $">>> Uređivanje postojećeg putovanja\n\nJeste li sigurni da želite urediti putovanje {tripId}?";
 
             switch (choice)
             {
@@ -405,7 +405,7 @@ namespace Internship_2_C_Sharp
             Console.Clear();
         }
 
-        static void PromptTripDelete(int tripId)
+        static void PromptTripDeleteSpecific(int tripId)
         {
             var choice = PromptMenu([
                 "Da (TRAJNO!)",
@@ -690,6 +690,49 @@ namespace Internship_2_C_Sharp
             ShowUsersSorted(choice);
         }
 
+        static void PromptTripDelete()
+        {
+            var choice = PromptMenu([
+                "...po ID-u",
+                "...svih putovanja skupljih od unesenog iznosa",
+                "...svih putovanja jeftinijih od unesenog iznosa",
+                "Povratak na glavni izbornik"
+            ], ">>> Brisanje putovanja");
+
+            var promptChoices = new string[] {
+                "Da",
+                "Ne (nazad na glavni izbornik)"
+            };
+            var promptSubtitle = $">>> Brisanje putovanja\n\nJeste li sigurni da želite izbrisati putovanja?";
+            decimal amount = 0;
+
+            switch (choice)
+            {
+                case 1:
+                    Console.WriteLine();
+                    PromptTripDeleteSpecific(OneLinePromptTrip("Upišite ID putovanja: "));
+                    break;
+                case 2:
+                    Console.WriteLine();
+                    amount = OneLinePromptDecimal("Upišite iznos (EUR): ");
+                    if (PromptMenu(promptChoices, promptSubtitle) == 1)
+                        foreach (var query in from tripCostPair in tripTotalSpendings where tripTotalSpendings[tripCostPair.Key] > amount select tripCostPair.Key)
+                            DeleteTripData(query);
+                    Console.Write("\nPutovanja uspješno izbrisana!\n\n");
+                    Halt();
+                    break;
+                case 3:
+                    Console.WriteLine();
+                    amount = OneLinePromptDecimal("Upišite iznos (EUR): ");
+                    if (PromptMenu(promptChoices, promptSubtitle) == 1)
+                        foreach (var query in from tripCostPair in tripTotalSpendings where tripTotalSpendings[tripCostPair.Key] < amount select tripCostPair.Key)
+                            DeleteTripData(query);
+                    Console.Write("\nPutovanja uspješno izbrisana!\n\n");
+                    Halt();
+                    break;
+            }
+        }
+
         static void ShowMenuTrip()
         {
             var choice = PromptMenu([
@@ -709,7 +752,7 @@ namespace Internship_2_C_Sharp
                     break;
                 case 2:
                     Console.WriteLine();
-                    PromptTripDelete(OneLinePromptTrip("Upišite ID putovanja: "));
+                    PromptTripDelete();
                     break;
                 case 3:
                     Console.WriteLine();

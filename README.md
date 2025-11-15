@@ -7,4 +7,6 @@ Drugi domaći rad za DUMP Dev Internship
 - [x] Shvati kako prikazati hrvatska slova
 - [x] Preimenuj "oil" u "fuel"
 - [x] Zaokruži nasumično generirane vrijednosti
+- [ ] FIX: edge case: handleaj dvije ili više istih kombinacija imena i prezimena za dva različita korisnika kod biranja korisnika i sl.
+- [ ] FIX: ponekad clear ne očisti sve, popravi (ako možeš)
 - [ ] ZA KRAJ: Uredi stil

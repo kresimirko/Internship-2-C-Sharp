@@ -733,6 +733,53 @@ namespace Internship_2_C_Sharp
             }
         }
 
+        static void ShowReport(int userId)
+        {
+            Console.Clear();
+            Console.Write("{0}\n\n>>> Izvještaji i analize\n\nKorisnik {1} {2} ({3})\n\n", title, userNames[userId], userSurnames[userId], userId);
+
+            decimal totalFuelUsed = 0;
+            decimal totalCost = 0;
+            decimal totalKm = 0;
+            foreach (var tripId in userTripIds[userId])
+            {
+                totalFuelUsed += tripFuelUsedUp[tripId];
+                totalCost += tripTotalSpendings[tripId];
+                totalKm += tripDistances[tripId];
+            }
+            decimal totalUsageInLPerKm = (totalFuelUsed / totalKm) * 100;
+
+            Console.WriteLine("Ukupna potrošnja goriva: {0}", totalFuelUsed);
+            Console.WriteLine("Ukupni troškovi goriva: {0}", totalCost);
+            Console.WriteLine("Prosječna potrošnja goriva u L/100km: {0}", totalUsageInLPerKm);
+
+            Console.WriteLine("Putovanje s najvećom potrošnjom goriva: {0}", (from tripId in userTripIds[userId] orderby tripFuelUsedUp[tripId] descending select tripId).First());
+
+            Console.Write("\nSada odaberite ako želite pregled putovanja po određenom datumu. (1 za da, 0 za ne)\n\n");
+            var choice = OneLinePromptIntInRange("Odabir: ", -1, 2);
+            if (choice == 1)
+            {
+                Console.WriteLine();
+                var chosenDate = OneLinePromptDate();
+                Console.WriteLine();
+                var foundSomething = false;
+                foreach (var tripId in userTripIds[userId])
+                {
+                    if (tripDates[tripId] == chosenDate)
+                    {
+                        ShowSpecificTripData(tripId, true);
+                        foundSomething = true;
+                        break;
+                    }
+                }
+                if (!foundSomething) Console.Write("Nije pronađeno niti jedno takvo putovanje.\n\n");
+            }
+            else
+                Console.WriteLine();
+
+            Halt();
+        }
+
         static void ShowMenuTrip()
         {
             var choice = PromptMenu([
@@ -769,6 +816,8 @@ namespace Internship_2_C_Sharp
                     Halt();
                     break;
                 case 6:
+                    Console.WriteLine();
+                    ShowReport(OneLinePromptUser());
                     break;
             }
         }

@@ -14,6 +14,7 @@ namespace Internship_2_C_Sharp
         static List<int> userIds = [];
         static Dictionary<int, string> userNames = [];
         static Dictionary<int, string> userSurnames = [];
+        static List<string> existingNameSurnameCombos = [];
         static Dictionary<int, DateTime> userDatesOfBirth = [];
         static Dictionary<int, List<int>> userTripIds = [];
         static List<int> tripIds = [];
@@ -81,6 +82,7 @@ namespace Internship_2_C_Sharp
                 var inputted = Console.ReadLine();
                 if (inputted is null)
                     continue;
+                inputted = inputted.Trim();
                 lastEnteredLength = inputted.Length;
 
                 var split = inputted.Split("-");
@@ -118,6 +120,7 @@ namespace Internship_2_C_Sharp
                 var inputted = Console.ReadLine();
                 if (inputted is null)
                     continue;
+                inputted = inputted.Trim();
 
                 return inputted;
             }
@@ -138,6 +141,7 @@ namespace Internship_2_C_Sharp
                 var inputted = Console.ReadLine();
                 if (inputted is null)
                     continue;
+                inputted = inputted.Trim();
                 lastEnteredLength = inputted.Length;
 
                 if (!(int.TryParse(inputted, out int parsed)))
@@ -162,6 +166,7 @@ namespace Internship_2_C_Sharp
                 var inputted = Console.ReadLine();
                 if (inputted is null)
                     continue;
+                inputted = inputted.Trim();
                 lastEnteredLength = inputted.Length;
 
                 if (!(decimal.TryParse(inputted, out decimal parsed)))
@@ -186,6 +191,7 @@ namespace Internship_2_C_Sharp
                 var inputted = Console.ReadLine();
                 if (inputted is null)
                     continue;
+                inputted = inputted.Trim();
                 lastEnteredLength = inputted.Length;
 
                 if (!(int.TryParse(inputted, out int parsed)))
@@ -211,6 +217,7 @@ namespace Internship_2_C_Sharp
                 var inputted = Console.ReadLine();
                 if (inputted is null)
                     continue;
+                inputted = inputted.Trim().ToLower();
                 lastEnteredLength = inputted.Length;
 
                 if (!(int.TryParse(inputted, out int userId)))
@@ -224,8 +231,8 @@ namespace Internship_2_C_Sharp
                         {
                             if ($"{userNames[surname.Key]} {surname.Value}" == inputted)
                                 return surname.Key;
+                            }
                         }
-                    }
                     else
                         continue;
                 }
@@ -292,10 +299,19 @@ namespace Internship_2_C_Sharp
             var rand = new Random();
             while (userLatestId < 3)
             {
+                var pickedName = stockNames[rand.Next(0, stockNames.Length)];
+                var pickedSurname = stockSurnames[rand.Next(0, stockSurnames.Length)];
+                var newCombo = $"{pickedName} {pickedSurname}";
+
+                if (existingNameSurnameCombos.Contains(newCombo))
+                    continue;
+                else
+                    existingNameSurnameCombos.Add(newCombo);
+
                 StoreNewUser(
-                    stockNames[rand.Next(0, stockNames.Length)],
-                    stockSurnames[rand.Next(0, stockSurnames.Length)],
-                    new DateTime(rand.Next(1960, 2007), rand.Next(1, 13), rand.Next(1, 29), rand.Next(0, 24), rand.Next(0, 60), rand.Next(0, 60))
+                    pickedName,
+                    pickedSurname,
+                    new DateTime(rand.Next(1960, 2007), rand.Next(1, 13), rand.Next(1, 29))
                 );
 
                 for (int x = 0; x < 5; x++)
@@ -303,7 +319,7 @@ namespace Internship_2_C_Sharp
                     var randomTripDistance = Math.Round((decimal)rand.NextDouble() * 900, 2);
                     StoreNewTrip(
                         userLatestId,
-                        new DateTime(rand.Next(userDatesOfBirth[userLatestId].Year + 19, 2007 + 19), rand.Next(1, 13), rand.Next(1, 29), rand.Next(0, 24), rand.Next(0, 60), rand.Next(0, 60)),
+                        new DateTime(rand.Next(userDatesOfBirth[userLatestId].Year + 19, 2007 + 19), rand.Next(1, 13), rand.Next(1, 29)),
                         randomTripDistance,
                         Math.Round(randomTripDistance * rand.Next(7, 15) / 100, 2),
                         Math.Round((decimal)rand.NextDouble() + 1, 2)
@@ -312,7 +328,7 @@ namespace Internship_2_C_Sharp
             }
         }
 
-        static void PromptTrip()
+        static void PromptTripNew()
         {
             Console.Clear();
             Console.WriteLine(title);
@@ -336,24 +352,47 @@ namespace Internship_2_C_Sharp
                 "Kilometražu",
                 "Potrošeno gorivo",
                 "Cijenu goriva",
-                "Odustani"
-            ], $">>> Uređivanje postojećeg putovanja\n\nOdaberite podatak koju želite izmjeniti za putovanje {tripId}.");
+                "Nazad na glavni izbornik"
+            ], $">>> Uređivanje putovanja\n\nOdaberite podatak koji želite izmjeniti za putovanje {tripId}.");
 
             Console.WriteLine();
+
+            decimal promptAnswer = 0;
+            var promptChoices = new string[] {
+                "Da",
+                "Ne (nazad na glavni izbornik)"
+            };
+            var promptSubtitle = $">>> Uređivanje putovanja\n\nJeste li sigurni da želite urediti putovanje {tripId}?";
 
             switch (choice)
             {
                 case 1:
-                    tripDates[tripId] = OneLinePromptDate();
+                    var promptAnswerDate = OneLinePromptDate();
+                    if (PromptMenu(promptChoices, promptSubtitle) == 1)
+                        tripDates[tripId] = promptAnswerDate;
+                    else
+                        return;
                     break;
                 case 2:
-                    tripDistances[tripId] = OneLinePromptDecimal("Unesite kilometražu: ");
+                    promptAnswer = OneLinePromptDecimal("Unesite kilometražu: ");
+                    if (PromptMenu(promptChoices, promptSubtitle) == 1)
+                        tripDistances[tripId] = promptAnswer;
+                    else
+                        return;
                     break;
                 case 3:
-                    tripFuelUsedUp[tripId] = OneLinePromptDecimal("Unesite potrošeno gorivo (L): ");
+                    promptAnswer = OneLinePromptDecimal("Unesite potrošeno gorivo (L): ");
+                    if (PromptMenu(promptChoices, promptSubtitle) == 1)
+                        tripFuelUsedUp[tripId] = promptAnswer;
+                    else
+                        return;
                     break;
                 case 4:
-                    tripFuelPrices[tripId] = OneLinePromptDecimal("Unesite cijenu po litri: ");
+                    promptAnswer = OneLinePromptDecimal("Unesite cijenu po litri: ");
+                    if (PromptMenu(promptChoices, promptSubtitle) == 1)
+                        tripFuelPrices[tripId] = promptAnswer;
+                    else
+                        return;
                     break;
                 case 0:
                     return;
@@ -377,7 +416,7 @@ namespace Internship_2_C_Sharp
             {
                 DeleteTripData(tripId);
 
-                Console.Write("\nUspješno izbrisano putovanje {0}!\n", tripId);
+                Console.Write("\nUspješno izbrisano putovanje {0}!\n\n", tripId);
                 Halt();
             }
         }
@@ -392,7 +431,7 @@ namespace Internship_2_C_Sharp
             }
             Console.WriteLine("Putovanje #{0}", tripId);
             Console.WriteLine("Korisnik: {0}", user);
-            Console.WriteLine("Datum: {0}", tripDates[tripId]);
+            Console.WriteLine("Datum: {0}", DateOnly.FromDateTime(tripDates[tripId]));
             Console.WriteLine("Kilometri: {0}", tripDistances[tripId]);
             Console.WriteLine("Gorivo: {0} L", tripFuelUsedUp[tripId]);
             Console.WriteLine("Cijena po litri: {0} EUR", tripFuelPrices[tripId]);
@@ -405,7 +444,7 @@ namespace Internship_2_C_Sharp
             Console.Write(userId + " - ");
             Console.Write(userNames[userId] + " - ");
             Console.Write(userSurnames[userId] + " - ");
-            Console.Write(userDatesOfBirth[userId] + (addExtraNewline ? "\n" : ""));
+            Console.Write(DateOnly.FromDateTime(userDatesOfBirth[userId]) + (addExtraNewline ? "\n" : ""));
         }
 
         static void ShowAllTripsInOrder()
@@ -428,32 +467,32 @@ namespace Internship_2_C_Sharp
             {
                 case 3:
                     Console.Write("trošku uzlazno\n\n");
-                    foreach (var trip in (from trip in tripTotalSpendings orderby trip.Value ascending select trip))
+                    foreach (var trip in from trip in tripTotalSpendings orderby trip.Value ascending select trip)
                         ShowSpecificTripData(trip.Key, true);
                     break;
                 case 4:
                     Console.Write("trošku silazno\n\n");
-                    foreach (var trip in (from trip in tripTotalSpendings orderby trip.Value descending select trip))
+                    foreach (var trip in from trip in tripTotalSpendings orderby trip.Value descending select trip)
                         ShowSpecificTripData(trip.Key, true);
                     break;
                 case 5:
                     Console.Write("kilometraži uzlazno\n\n");
-                    foreach (var trip in (from trip in tripDistances orderby trip.Value ascending select trip))
+                    foreach (var trip in from trip in tripDistances orderby trip.Value ascending select trip)
                         ShowSpecificTripData(trip.Key, true);
                     break;
                 case 6:
                     Console.Write("kilometraži silazno\n\n");
-                    foreach (var trip in (from trip in tripDistances orderby trip.Value descending select trip))
+                    foreach (var trip in from trip in tripDistances orderby trip.Value descending select trip)
                         ShowSpecificTripData(trip.Key, true);
                     break;
                 case 7:
                     Console.Write("datumu uzlazno\n\n");
-                    foreach (var trip in (from trip in tripDates orderby trip.Value ascending select trip))
+                    foreach (var trip in from trip in tripDates orderby trip.Value ascending select trip)
                         ShowSpecificTripData(trip.Key, true);
                     break;
                 case 8:
                     Console.Write("datumu silazno\n\n");
-                    foreach (var trip in (from trip in tripDates orderby trip.Value descending select trip))
+                    foreach (var trip in from trip in tripDates orderby trip.Value descending select trip)
                         ShowSpecificTripData(trip.Key, true);
                     break;
             }
@@ -514,9 +553,22 @@ namespace Internship_2_C_Sharp
             Console.Clear();
             Console.WriteLine(title);
             Console.Write("\n>>> Unos novog korisnika\n\nUnesite informacije.\n\n");
+
+            var pickedName = OneLinePromptString("Ime (bez prezimena): ");
+            var pickedSurname = OneLinePromptString("Prezime: ");
+            var newCombo = $"{pickedName} {pickedSurname}";
+
+            if (existingNameSurnameCombos.Contains(newCombo))
+            {
+                Console.Write("\nGreška: Korisnik s tim imenom i prezimenom već postoji.\n\n");
+                Halt();
+                Console.Clear();
+                return;
+            }
+
             StoreNewUser(
-                OneLinePromptString("Ime (bez prezimena): "),
-                OneLinePromptString("Prezime: "),
+                pickedName,
+                pickedSurname,
                 OneLinePromptDate("Datum rođenja (YYYY-MM-DD): ")
             );
             Console.Write("\nKorisnik uspješno dodan!\n\n");
@@ -535,31 +587,53 @@ namespace Internship_2_C_Sharp
             {
                 DeleteUserData(userId);
 
-                Console.Write("\nUspješno izbrisan korisnik {0}!\n", userId);
+                Console.Write("\nUspješno izbrisan korisnik {0}!\n\n", userId);
                 Halt();
             }
         }
 
         static void PromptUserEdit(int userId)
         {
+            var userFormatted = $"{userNames[userId]} {userSurnames[userId]} ({userId})";
+
             var choice = PromptMenu([
                 "Ime",
                 "Prezime",
                 "Datum rođenja",
-            ], $">>> Uređivanje postojećeg korisnika\n\nOdaberite podatak koji želite izmjeniti za korisnika {userId}.");
+                "Nazad na glavni izbornik"
+            ], $">>> Uređivanje postojećeg korisnika\n\nOdaberite podatak koji želite izmjeniti za korisnika {userFormatted}.");
 
             Console.WriteLine();
+
+            var promptAnswer = "";
+            var promptChoices = new string[] {
+                "Da",
+                "Ne (nazad na glavni izbornik)"
+            };
+            var promptSubtitle = $">>> Uređivanje korisnika\n\nJeste li sigurni da želite urediti korisnika {userFormatted}?";
 
             switch (choice)
             {
                 case 1:
-                    userNames[userId] = OneLinePromptString("Unesite ime (bez prezimena): ");
+                    promptAnswer = OneLinePromptString("Unesite ime (bez prezimena): ");
+                    if (PromptMenu(promptChoices, promptSubtitle) == 1)
+                        userNames[userId] = promptAnswer;
+                    else
+                        return;
                     break;
                 case 2:
-                    userSurnames[userId] = OneLinePromptString("Unesite prezime: ");
+                    promptAnswer = OneLinePromptString("Unesite prezime: ");
+                    if (PromptMenu(promptChoices, promptSubtitle) == 1)
+                        userSurnames[userId] = promptAnswer;
+                    else
+                        return;
                     break;
                 case 3:
-                    userDatesOfBirth[userId] = OneLinePromptDate("Unesite datum rođenja (YYYY-MM-DD): ");
+                    var promptAnswerDate = OneLinePromptDate("Unesite datum rođenja (YYYY-MM-DD): ");
+                    if (PromptMenu(promptChoices, promptSubtitle) == 1)
+                        userDatesOfBirth[userId] = promptAnswerDate;
+                    else
+                        return;
                     break;
                 case 0:
                     return;
@@ -611,7 +685,7 @@ namespace Internship_2_C_Sharp
                 "...svih onih koji imaju više od 20 godina",
                 "...svih onih koji imaju barem 2 putovanja",
                 "Povratak na glavni izbornik"
-            ], ">>> Pregled svih putovanja");
+            ], ">>> Pregled svih korisnika");
 
             ShowUsersSorted(choice);
         }
@@ -631,7 +705,7 @@ namespace Internship_2_C_Sharp
             switch (choice)
             {
                 case 1:
-                    PromptTrip();
+                    PromptTripNew();
                     break;
                 case 2:
                     Console.WriteLine();
@@ -671,9 +745,11 @@ namespace Internship_2_C_Sharp
                     PromptUserNew();
                     break;
                 case 2:
+                    Console.WriteLine();
                     PromptUserDelete(OneLinePromptUser());
                     break;
                 case 3:
+                    Console.WriteLine();
                     PromptUserEdit(OneLinePromptUser(true));
                     break;
                 case 4:

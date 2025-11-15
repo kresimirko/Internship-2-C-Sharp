@@ -65,9 +65,9 @@ namespace Internship_2_C_Sharp
             Console.Write(new string('\b', invalidInputWarning.Length));
         }
 
-        static DateTime OneLinePromptDate()
+        static DateTime OneLinePromptDate([Optional] string customPrompt)
         {
-            var prompt = "Unesite datum (YYYY-MM-DD): ";
+            var prompt = customPrompt is not null ? customPrompt : "Unesite datum (YYYY-MM-DD): ";
             Console.Write(prompt);
             bool firstLoop = true;
             int lastEnteredLength = 0;
@@ -475,6 +475,21 @@ namespace Internship_2_C_Sharp
             }
         }
 
+        static void PromptNewUser()
+        {
+            Console.Clear();
+            Console.WriteLine(title);
+            Console.Write("\n>>> Unos novog korisnika\n\nUnesite informacije.\n\n");
+            StoreNewUser(
+                OneLinePromptString("Ime (bez prezimena): "),
+                OneLinePromptString("Prezime: "),
+                OneLinePromptDate("Datum rođenja (YYYY-MM-DD): ")
+            );
+            Console.Write("\nKorisnik uspješno dodan!\n\n");
+            Halt();
+            Console.Clear();
+        }
+
         static void ShowMenuTrip()
         {
             var choice = PromptMenu([
@@ -527,6 +542,7 @@ namespace Internship_2_C_Sharp
             switch (choice)
             {
                 case 1:
+                    PromptNewUser();
                     break;
                 case 2:
                     break;

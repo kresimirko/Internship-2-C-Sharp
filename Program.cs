@@ -23,6 +23,12 @@ namespace Internship_2_C_Sharp
         static Dictionary<int, decimal> tripFuelPrices = [];
         static Dictionary<int, decimal> tripTotalSpendings = [];
 
+        static void Halt()
+        {
+            Console.Write("Pritisnite bilo koju tipku za povratak...");
+            Console.ReadKey();
+        }
+
         static int PromptMenu(string[] options, [Optional] string subtitle)
         {
             Console.Clear();
@@ -173,11 +179,11 @@ namespace Internship_2_C_Sharp
                         continue;
                     foreach (var surname in userSurnames)
                     {
-                        if (surname.Value + userNames[surname.Key] == inputted)
+                        if ($"{userNames[surname.Key]} {surname.Value}" == inputted)
                             return surname.Key;
                     }
                 }
-                else
+                else if (userIds.Contains(userId))
                     return userId;
             }
         }
@@ -245,39 +251,102 @@ namespace Internship_2_C_Sharp
                 OneLinePromptDecimal("Unesite potrošeno gorivo (L): "),
                 OneLinePromptDecimal("Unesite cijenu po litri: ")
             );
-            Console.WriteLine("\nPutovanje uspješno dodano!");
-            Thread.Sleep(2000);
+            Console.Write("\nPutovanje uspješno dodano!\n\n");
+            Halt();
             Console.Clear();
         }
 
-        static void ShowAllTrips()
+        static void ShowSpecificTripData(int tripId, [Optional] bool addExtraNewline)
+        {
+            var user = "";
+            foreach (var userTripIdsEntry in userTripIds)
+            {
+                if (userTripIdsEntry.Value.Contains(tripId))
+                    user = $"{userNames[userTripIdsEntry.Key]} {userSurnames[userTripIdsEntry.Key]}";
+            }
+            Console.WriteLine("Putovanje #{0}", tripId);
+            Console.WriteLine("Korisnik: {0}", user);
+            Console.WriteLine("Datum: {0}", tripDates[tripId]);
+            Console.WriteLine("Kilometri: {0}", tripDistances[tripId]);
+            Console.WriteLine("Gorivo: {0} L", tripFuelUsedUp[tripId]);
+            Console.WriteLine("Cijena po litri: {0} EUR", tripFuelPrices[tripId]);
+            Console.WriteLine("Ukupno: {0} EUR", tripTotalSpendings[tripId]);
+            if (addExtraNewline) Console.WriteLine();
+        }
+
+        static void ShowAllTripsInOrder()
         {
             Console.Clear();
-            Console.Write("{0}\n\n>>> Pregled svih putovanja\n\n", title);
+            Console.Write("{0}\n\n>>> ...redom kako su spremljena\n\n", title);
+
+            foreach (var tripId in tripIds)
+                ShowSpecificTripData(tripId, true);
+
+            Halt();
+        }
+
+        static void ShowTripsSorted(int choice)
+        {
+            Console.Clear();
+            Console.Write("{0}\n\n>>>sortirana po ", title);
+
+            switch (choice)
+            {
+                case 3:
+                    Console.Write("trošku uzlazno\n\n");
+                    foreach (var trip in (from trip in tripTotalSpendings orderby trip.Value ascending select trip))
+                        ShowSpecificTripData(trip.Key, true);
+                    break;
+                case 4:
+                    Console.Write("trošku silazno\n\n");
+                    foreach (var trip in (from trip in tripTotalSpendings orderby trip.Value descending select trip))
+                        ShowSpecificTripData(trip.Key, true);
+                    break;
+                case 5:
+                    Console.Write("kilometraži uzlazno\n\n");
+                    foreach (var trip in (from trip in tripDistances orderby trip.Value ascending select trip))
+                        ShowSpecificTripData(trip.Key, true);
+                    break;
+                case 6:
+                    Console.Write("kilometraži silazno\n\n");
+                    foreach (var trip in (from trip in tripDistances orderby trip.Value descending select trip))
+                        ShowSpecificTripData(trip.Key, true);
+                    break;
+                case 7:
+                    Console.Write("datumu uzlazno\n\n");
+                    foreach (var trip in (from trip in tripDates orderby trip.Value ascending select trip))
+                        ShowSpecificTripData(trip.Key, true);
+                    break;
+                case 8:
+                    Console.Write("datumu silazno\n\n");
+                    foreach (var trip in (from trip in tripDates orderby trip.Value descending select trip))
+                        ShowSpecificTripData(trip.Key, true);
+                    break;
+            }
+
+            Halt();
+        }
+
+        static void ShowAllTripsGroupedByUsers()
+        {
+            Console.Clear();
+            Console.Write("{0}\n\n>>> ...grupirana po korisnicima\n\n", title);
 
             foreach (var userId in userIds)
             {
                 Console.WriteLine("-- Korisnik: {0} {1} --\n", userNames[userId], userSurnames[userId]);
                 foreach (var tripId in userTripIds[userId])
-                {
-                    Console.WriteLine("Putovanje #{0}", tripId);
-                    Console.WriteLine("Datum: {0}", tripDates[tripId]);
-                    Console.WriteLine("Kilometri: {0}", tripDistances[tripId]);
-                    Console.WriteLine("Gorivo: {0} L", tripFuelUsedUp[tripId]);
-                    Console.WriteLine("Cijena po litri: {0} EUR", tripFuelPrices[tripId]);
-                    Console.WriteLine("Ukupno: {0} EUR", tripTotalSpendings[tripId]);
-                    Console.WriteLine();
-                }
+                    ShowSpecificTripData(tripId, true);
             }
 
-            Console.Write("Pritisnite bilo koju tipku za povratak...");
-            Console.ReadKey();
+            Halt();
         }
 
         static void ShowMenuShowTrips()
         {
             var choice = PromptMenu([
                 "...redom kako su spremljena",
+                "...grupirana po korisnicima",
                 "...sortirana po trošku uzlazno",
                 "...sortirana po trošku silazno",
                 "...sortirana po kilometraži uzlazno",
@@ -290,19 +359,18 @@ namespace Internship_2_C_Sharp
             switch (choice)
             {
                 case 1:
-                    ShowAllTrips();
+                    ShowAllTripsInOrder();
                     break;
                 case 2:
+                    ShowAllTripsGroupedByUsers();
                     break;
                 case 3:
-                    break;
                 case 4:
-                    break;
                 case 5:
-                    break;
                 case 6:
-                    break;
                 case 7:
+                case 8:
+                    ShowTripsSorted(choice);
                     break;
             }
         }
@@ -371,6 +439,9 @@ namespace Internship_2_C_Sharp
                     break;
                 case 2:
                     ShowMenuTrip();
+                    break;
+                case 0:
+                    Environment.Exit(0);
                     break;
             }
         }

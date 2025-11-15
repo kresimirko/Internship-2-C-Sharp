@@ -3,7 +3,7 @@ Drugi domaći rad za DUMP Dev Internship
 
 ## Todo
 - [ ] :warning: Dodaj ograničenje na dob novog korisnika
-- [ ] :warning: Trim na sve što korisnik upiše
+- [ ] :warning: Trim na sve što korisnik upiše i tolower
 - [ ] (Možda) ne izbacuj uvijek na glavni meni
 - [x] Shvati kako prikazati hrvatska slova
 - [x] Preimenuj "oil" u "fuel"

@@ -195,9 +195,9 @@ namespace Internship_2_C_Sharp
             }
         }
 
-        static int OneLinePromptUser()
+        static int OneLinePromptUser([Optional] bool onlyById)
         {
-            var prompt = "Odaberite korisnika (ime i prezime ili ID): ";
+            var prompt = $"Odaberite korisnika ({(onlyById ? "" : "ime i prezime ili ")}ID): ";
             Console.Write(prompt);
             bool firstLoop = true;
             int lastEnteredLength = 0;
@@ -215,14 +215,19 @@ namespace Internship_2_C_Sharp
 
                 if (!(int.TryParse(inputted, out int userId)))
                 {
-                    var inputtedUserNameAndSurname = inputted.Split(' ');
-                    if (inputtedUserNameAndSurname.Length != 2)
-                        continue;
-                    foreach (var surname in userSurnames)
+                    if (!onlyById)
                     {
-                        if ($"{userNames[surname.Key]} {surname.Value}" == inputted)
-                            return surname.Key;
+                        var inputtedUserNameAndSurname = inputted.Split(' ');
+                        if (inputtedUserNameAndSurname.Length != 2)
+                            continue;
+                        foreach (var surname in userSurnames)
+                        {
+                            if ($"{userNames[surname.Key]} {surname.Value}" == inputted)
+                                return surname.Key;
+                        }
                     }
+                    else
+                        continue;
                 }
                 else if (userIds.Contains(userId))
                     return userId;
@@ -273,8 +278,9 @@ namespace Internship_2_C_Sharp
             userDatesOfBirth.Remove(userId);
             userTripIds.Remove(userId);
 
-            foreach (var tripId in userTripIds[userId])
-                DeleteTripData(tripId);
+            if (userTripIds.TryGetValue(userId, out List<int>? value))
+                foreach (var tripId in value)
+                    DeleteTripData(tripId);
             userTripIds.Remove(userId);
         }
 
@@ -353,6 +359,8 @@ namespace Internship_2_C_Sharp
                     return;
             }
 
+            tripTotalSpendings[tripId] = tripFuelUsedUp[tripId] * tripFuelPrices[tripId];
+
             Console.Write("\nPutovanje uspješno uređeno!\n\n");
             Halt();
             Console.Clear();
@@ -390,6 +398,14 @@ namespace Internship_2_C_Sharp
             Console.WriteLine("Cijena po litri: {0} EUR", tripFuelPrices[tripId]);
             Console.WriteLine("Ukupno: {0} EUR", tripTotalSpendings[tripId]);
             if (addExtraNewline) Console.WriteLine();
+        }
+
+        static void ShowSpecificUserData(int userId, [Optional] bool addExtraNewline)
+        {
+            Console.Write(userId + " - ");
+            Console.Write(userNames[userId] + " - ");
+            Console.Write(userSurnames[userId] + " - ");
+            Console.Write(userDatesOfBirth[userId] + (addExtraNewline ? "\n" : ""));
         }
 
         static void ShowAllTripsInOrder()
@@ -513,7 +529,7 @@ namespace Internship_2_C_Sharp
             var choice = PromptMenu([
                 "Da (TRAJNO!)",
                 "Ne (nazad na glavni izbornik)"
-            ], $">>> Brisanje korisnika\n\nJeste li sigurni da želite izbrisati korisnika {userId}?");
+            ], $">>> Brisanje korisnika\n\nJeste li sigurni da želite izbrisati korisnika {userNames[userId]} {userSurnames[userId]} ({userId})?");
 
             if (choice == 1)
             {
@@ -524,23 +540,80 @@ namespace Internship_2_C_Sharp
             }
         }
 
-        static void ShowAllUsers()
+        static void PromptUserEdit(int userId)
+        {
+            var choice = PromptMenu([
+                "Ime",
+                "Prezime",
+                "Datum rođenja",
+            ], $">>> Uređivanje postojećeg korisnika\n\nOdaberite podatak koji želite izmjeniti za korisnika {userId}.");
+
+            Console.WriteLine();
+
+            switch (choice)
+            {
+                case 1:
+                    userNames[userId] = OneLinePromptString("Unesite ime (bez prezimena): ");
+                    break;
+                case 2:
+                    userSurnames[userId] = OneLinePromptString("Unesite prezime: ");
+                    break;
+                case 3:
+                    userDatesOfBirth[userId] = OneLinePromptDate("Unesite datum rođenja (YYYY-MM-DD): ");
+                    break;
+                case 0:
+                    return;
+            }
+
+            Console.Write("\nKorisnik uspješno uređen!\n\n");
+            Halt();
+            Console.Clear();
+        }
+
+        static void ShowUsersSorted(int sort)
         {
             Console.Clear();
-            Console.Write("{0}\n\n>>> Pregled svih korisnika\n\n", title);
-            Console.WriteLine("ID - Ime - Prezime - Datum rođenja");
-            Console.WriteLine(new string('-', 50));
+            Console.Write("{0}\n\n>>> Pregled svih korisnika", title);
 
-            foreach (var userId in userIds)
+            switch (sort)
             {
-                Console.Write(userId + " - ");
-                Console.Write(userNames[userId] + " - ");
-                Console.Write(userSurnames[userId] + " - ");
-                Console.Write(userDatesOfBirth[userId] + "\n");
+                case 1:
+                    Console.Write("\n\n");
+                    Console.WriteLine("ID - Ime - Prezime - Datum rođenja");
+                    Console.WriteLine(new string('-', 50));
+                    foreach (var userId in userIds)
+                        ShowSpecificUserData(userId, true);
+                    break;
+                case 2:
+                    Console.Write(" koji imaju više od 20 godina\n\n");
+                    Console.WriteLine("ID - Ime - Prezime - Datum rođenja");
+                    Console.WriteLine(new string('-', 50));
+                    foreach (var query in from userDOBPair in userDatesOfBirth where (DateTime.Now.Year - userDOBPair.Value.Year > 20) select userDOBPair.Key)
+                        ShowSpecificUserData(query, true);
+                    break;
+                case 3:
+                    Console.Write(" koji imaju barem 2 putovanja\n\n");
+                    Console.WriteLine("ID - Ime - Prezime - Datum rođenja");
+                    Console.WriteLine(new string('-', 50));
+                    foreach (var query in from userTripIdPair in userTripIds where userTripIds[userTripIdPair.Key].Count >= 2 select userTripIdPair.Key)
+                        ShowSpecificUserData(query, true);
+                    break;
             }
 
             Console.WriteLine();
             Halt();
+        }
+
+        static void ShowMenuShowUsers()
+        {
+            var choice = PromptMenu([
+                "...redom kako su spremljena",
+                "...svih onih koji imaju više od 20 godina",
+                "...svih onih koji imaju barem 2 putovanja",
+                "Povratak na glavni izbornik"
+            ], ">>> Pregled svih putovanja");
+
+            ShowUsersSorted(choice);
         }
 
         static void ShowMenuTrip()
@@ -601,9 +674,10 @@ namespace Internship_2_C_Sharp
                     PromptUserDelete(OneLinePromptUser());
                     break;
                 case 3:
+                    PromptUserEdit(OneLinePromptUser(true));
                     break;
                 case 4:
-                    ShowAllUsers();
+                    ShowMenuShowUsers();
                     break;
             }
         }

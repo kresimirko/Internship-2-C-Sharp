@@ -315,6 +315,30 @@ namespace Internship_2_C_Sharp
             Console.Clear();
         }
 
+        static void PromptTripDelete(int tripId)
+        {
+            var choice = PromptMenu([
+                "Da (TRAJNO!)",
+                "Ne (nazad na glavni izbornik)"
+            ], $">>> Brisanje putovanja\n\nJeste li sigurni da želite izbrisati putovanje {tripId}?");
+
+            if (choice == 1)
+            {
+                foreach (var pair in userTripIds)
+                    pair.Value.Remove(tripId);
+
+                tripIds.Remove(tripId);
+                tripDates.Remove(tripId);
+                tripDistances.Remove(tripId);
+                tripFuelUsedUp.Remove(tripId);
+                tripFuelPrices.Remove(tripId);
+                tripTotalSpendings.Remove(tripId);
+
+                Console.Write("\nUspješno izbrisano putovanje {0}!\n", tripId);
+                Halt();
+            }
+        }
+
         static void ShowSpecificTripData(int tripId, [Optional] bool addExtraNewline)
         {
             var user = "";
@@ -441,6 +465,7 @@ namespace Internship_2_C_Sharp
                 "Brisanje putovanja",
                 "Uređivanje postojećeg putovanja",
                 "Pregled svih putovanja",
+                "Pregled specifičnog putovanja",
                 "Izvještaji i analize",
                 "Povratak na glavni izbornik"
             ]);
@@ -451,15 +476,21 @@ namespace Internship_2_C_Sharp
                     PromptTrip();
                     break;
                 case 2:
+                    Console.Write("\nUpišite ID putovanja. Ako je odabir nevažeći, pokazivač će se vratiti na početak upita i konzola će zazvoniti.\n\n");
+                    PromptTripDelete(OneLinePromptTrip("Odabir: "));
                     break;
                 case 3:
-                    Console.WriteLine();
-                    PromptTripEdit(OneLinePromptTrip("Upišite ID putovanja: "));
+                    Console.Write("\nUpišite ID putovanja. Ako je odabir nevažeći, pokazivač će se vratiti na početak upita i konzola će zazvoniti.\n\n");
+                    PromptTripEdit(OneLinePromptTrip("Odabir: "));
                     break;
                 case 4:
                     ShowMenuShowTrips();
                     break;
                 case 5:
+                    Console.Write("\nUpišite ID putovanja. Ako je odabir nevažeći, pokazivač će se vratiti na početak upita i konzola će zazvoniti.\n\n");
+                    ShowSpecificTripData(OneLinePromptTrip("Odabir: "));
+                    break;
+                case 6:
                     break;
             }
         }

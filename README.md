@@ -10,3 +10,4 @@ Drugi domaći rad za DUMP Dev Internship
 - [ ] FIX: edge case: handleaj dvije ili više istih kombinacija imena i prezimena za dva različita korisnika kod biranja korisnika i sl.
 - [ ] FIX: ponekad clear ne očisti sve, popravi (ako možeš)
 - [ ] ZA KRAJ: Uredi stil
+- [ ] ZA KRAJ: dodaj više try-catcheva... možda
